@@ -222,6 +222,17 @@ class JobConfig:
         )
     )
 
+    pool: str = field(
+        default=False,
+        metadata=metadata(
+            help="Whether or not to use the pool system, which allows for"
+                 " randomization of questions and instructions in the"
+                 " instructor control script. If set to 'comment', then"
+                 " the ICS will be divided into pools based on comments, and the "
+                 " pool will be chosen based on the presence of a comment in the student code."
+        )
+    )
+
 def parse_nested_dict(items):
     """Convert ['sandbox.trace=true', 'tifa.allow_none_objects=true'] into a nested dict"""
     nested_dict = defaultdict(dict)

@@ -163,6 +163,8 @@ def build_parser(reduced_mode=False):
 def parse_args(reduced_mode=False):
     """ Parse the arguments passed into the command line. """
     job_config = make_job_config_parser()
+    if job_config.instructor_name is None:
+        job_config.instructor_name = job_config.instructor
     return job_config
 
     # parser = build_parser(reduced_mode)

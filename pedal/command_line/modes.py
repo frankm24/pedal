@@ -1,6 +1,7 @@
 """
 Simple enumeration of the Modes available for Pedal's command line.
 """
+import re
 import json
 import os
 import sys
@@ -85,6 +86,36 @@ class BundleResult:
             **resolution
         )
 
+def extract_instructor_pool(config, script, submission):
+    for line in submission.main_code.splitlines():
+        if line.startswith("# pool: "):
+            pool_name = line[8:].strip()
+            break
+    else:
+        raise ValueError(
+            "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
+        )
+    if not pool_name:
+        raise ValueError(
+            "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
+        )
+    parts = re.split(r"#{4,} (.+) #{4,}", script, flags=re.M)
+    if len(parts) <= 2:
+        raise ValueError(
+            "Pools not found in instructor control script. Please specify a pool in the instructor control script by writing `#### <pool_name> ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets."
+        )
+    header, footer = parts[0], parts[-1]
+    for i in range(1, len(parts) - 1, 2):
+        if parts[i] == pool_name:
+            body = header + parts[i + 1] + footer
+            break
+    else:
+        found_pools = ", ".join(parts[1::2])
+        raise ValueError(
+            f"Pool '{pool_name}' not found in instructor control script. Please specify a pool in the instructor control script by writing `#### {pool_name} ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets. Found pools: {found_pools}."
+        )
+    return "\n".join([ header, body, footer ])
+
 class Bundle:
     """
     Represents the combination of an instructor control script and a submission that it is
@@ -93,6 +124,8 @@ class Bundle:
     configuration that was used to run the bundle.
     """
     def __init__(self, config, script, submission):
+        if config.pool == 'comment':
+            script = extract_instructor_pool(config, script, submission)
         self.config = config
         self.script = script
         self.submission = submission
@@ -171,7 +204,6 @@ class AbstractPipeline:
         self.setup_execution()
         self.run_control_scripts()
         return self.process_output()
-
     def load_file_submissions(self, scripts):
         # Get instructor control scripts
         all_scripts = []

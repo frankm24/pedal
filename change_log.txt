@@ -1,3 +1,8 @@
+Version 2.9.1 (8/3/2025)
+------------------------
+* Fixed bug with `verify` mode not handling a missing instructor name
+* New `--pool` flag for command line to specify a pool of feedback to use
+
 Version 2.9.0 (7/20/2025)
 -------------------------
 * Changed ics_direct parameter to instructor_direct, added submission_direct
