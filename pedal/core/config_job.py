@@ -55,7 +55,7 @@ MAIN_PARSER_DESCRIPTION = "Run instructor control script on student submission."
 class JobConfig:
     mode: MODES = field(
         metadata=metadata(
-            optional=False,
+            optional=True,
             help="What kind of Pedal analysis you're running. See the description of each mode above.",
             choices=list(MODES.PIPELINES)
         )
@@ -209,7 +209,7 @@ class JobConfig:
         default_factory=dict,
         metadata=metadata(
             help="Additional configuration for specific tools. Provide"
-                        " them in the format `-- tool name.setting=value`, e.g.,"
+                        " them in the format `--tool name.setting=value`, e.g.,"
                         " `--tool tifa.skip=true`.",
             nargs="*"
         )
@@ -233,7 +233,16 @@ class JobConfig:
         )
     )
 
-def parse_nested_dict(items):
+    execution: Dict[str, Any] = field(
+        default_factory=dict,
+        metadata=metadata(
+            help="Additional metadata that will be passed to the submission as `execution`. Provide"
+                        " them in the format `--execution setting=value`, e.g.,"
+                        " `--execution submission_id=27`.",
+        )
+    )
+
+def parse_nested_dict(items, minimum_key_parts=2):
     """Convert ['sandbox.trace=true', 'tifa.allow_none_objects=true'] into a nested dict"""
     nested_dict = defaultdict(dict)
     print(items)
@@ -242,10 +251,14 @@ def parse_nested_dict(items):
             raise ValueError(f"Invalid format: {item}. Expected key=value.")
         key, value = item.split('=', 1)
         parts = key.split('.')
-        if len(parts) < 2:
+        if len(parts) < minimum_key_parts:
             raise ValueError(f"Invalid tool key: {key}. Must be in format 'name.setting'.")
-        tool_name, setting = parts[0], '.'.join(parts[1:])
-        nested_dict[tool_name][setting] = value
+        if len(parts) >= 2:
+            tool_name, setting = parts[0], '.'.join(parts[1:])
+            nested_dict[tool_name][setting] = value
+        else:
+            setting = parts[0]
+            nested_dict[setting] = value
     return dict(nested_dict)
 
 
@@ -316,5 +329,6 @@ def make_job_config_parser():
 
     # Post process
     parsed_args.tool = parse_nested_dict(parsed_args.tool or [])
+    parsed_args.execution = parse_nested_dict(parsed_args.execution or [], minimum_key_parts=1)
 
     return JobConfig(**vars(parsed_args))

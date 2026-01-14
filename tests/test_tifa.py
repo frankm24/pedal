@@ -1498,6 +1498,25 @@ print(foo(-5))
             raise result.error
         self.assertIsNone(result.error)
         self.assertFalse(result.issues)
+        print(tifa.analysis.variables)
+
+    def test_explicit_return_none(self):
+        main_program = dedent("""
+        def foo(a: int) -> int:
+            if a > 0:
+                return 5
+            else:
+                return None
+
+        print(foo(5))
+        print(foo(-5))
+        """)
+        tifa = pedal.tifa.Tifa()
+        result = tifa.process_code(main_program, filename="student.py")
+        if result.error:
+            raise result.error
+        self.assertIsNone(result.error)
+        self.assertFalse(result.issues)
 
 if __name__ == '__main__':
     unittest.main(buffer=False)

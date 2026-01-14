@@ -7,6 +7,7 @@ from pedal.questions.loader import load_question, SETTING_SHOW_CASE_DETAILS
 from pedal.questions.questions import Question
 from pedal.questions.pool import Pool
 from pedal.questions.graders import FunctionGrader, QuestionGrader
+from pedal.questions.commands import grade_function_question
 
 NAME = 'Questions'
 SHORT_DESCRIPTION = "Provides dynamic questions to learners"
@@ -17,4 +18,4 @@ OPTIONALS = []
 CATEGORY = 'Instructions'
 
 __all__ = ['NAME', 'DESCRIPTION', 'SHORT_DESCRIPTION', 'REQUIRES', 'OPTIONALS',
-           'Question', 'Pool', 'set_seed', "FunctionGrader", 'QuestionGrader']
+           'Question', 'Pool', 'set_seed', "FunctionGrader", 'QuestionGrader', 'grade_function_question']

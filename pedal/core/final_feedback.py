@@ -83,6 +83,7 @@ class FinalFeedback:
         Otherwise, we return the feedback object to indicate that we have
         incorporated it into our final feedback.
         """
+        # print(feedback)
         self.considered.append(feedback)
         # Check if we should suppress this feedback based on its
         # category and label (and also potentially fields)

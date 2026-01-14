@@ -86,34 +86,47 @@ class BundleResult:
             **resolution
         )
 
-def extract_instructor_pool(config, script, submission):
-    for line in submission.main_code.splitlines():
-        if line.startswith("# pool: "):
-            pool_name = line[8:].strip()
-            break
-    else:
-        raise ValueError(
-            "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
-        )
-    if not pool_name:
-        raise ValueError(
-            "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
-        )
+def extract_instructor_pool(config, script, submission, pool_mode='comment'):
     parts = re.split(r"#{4,} (.+) #{4,}", script, flags=re.M)
     if len(parts) <= 2:
         raise ValueError(
             "Pools not found in instructor control script. Please specify a pool in the instructor control script by writing `#### <pool_name> ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets."
         )
     header, footer = parts[0], parts[-1]
-    for i in range(1, len(parts) - 1, 2):
-        if parts[i] == pool_name:
-            body = header + parts[i + 1] + footer
-            break
+
+    if pool_mode == 'comment':
+        for line in submission.main_code.splitlines():
+            if line.startswith("# pool: "):
+                pool_name = line[8:].strip()
+                break
+        else:
+            raise ValueError(
+                "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
+            )
+        if not pool_name:
+            raise ValueError(
+                "No pool found in submission. Please specify a pool in the submission file by writing `# pool: <pool_name>` at the top of the file."
+            )
+        for i in range(1, len(parts) - 1, 2):
+            if parts[i] == pool_name:
+                body = parts[i + 1]
+                break
+        else:
+            found_pools = ", ".join(parts[1::2])
+            raise ValueError(
+                f"Pool '{pool_name}' not found in instructor control script. Please specify a pool in the instructor control script by writing `#### {pool_name} ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets. Found pools: {found_pools}."
+            )
+    elif pool_mode == 'submission_id':
+        pool_id = submission.execution.get('submission_id') if submission.execution else None
+        if pool_id is None:
+            raise ValueError(
+                "No pool id found in submission. Please ensure the submission has a submission_id for the execution."
+            )
+        pool_index = 1 + (pool_id % (len(parts)-2))
+        body = parts[::2][pool_index]
     else:
-        found_pools = ", ".join(parts[1::2])
-        raise ValueError(
-            f"Pool '{pool_name}' not found in instructor control script. Please specify a pool in the instructor control script by writing `#### {pool_name} ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets. Found pools: {found_pools}."
-        )
+        raise ValueError(f"Unknown pool mode: {pool_mode}")
+    print(header, body, footer)
     return "\n".join([ header, body, footer ])
 
 class Bundle:
@@ -124,8 +137,8 @@ class Bundle:
     configuration that was used to run the bundle.
     """
     def __init__(self, config, script, submission):
-        if config.pool == 'comment':
-            script = extract_instructor_pool(config, script, submission)
+        if config.pool in ('comment', 'submission_id'):
+            script = extract_instructor_pool(config, script, submission, config.pool)
         self.config = config
         self.script = script
         self.submission = submission
@@ -204,6 +217,7 @@ class AbstractPipeline:
         self.setup_execution()
         self.run_control_scripts()
         return self.process_output()
+
     def load_file_submissions(self, scripts):
         # Get instructor control scripts
         all_scripts = []
@@ -228,7 +242,8 @@ class AbstractPipeline:
                 for main_file, main_code in subs.items():
                     new_submission = Submission(
                         main_file=main_file, main_code=main_code,
-                        instructor_file=script
+                        instructor_file=script,
+                        execution=self.config.execution
                     )
                     self.submissions.append(Bundle(self.config, scripts_contents, new_submission))
         # Otherwise, if the submission is a single file:
@@ -262,7 +277,8 @@ class AbstractPipeline:
             for script, scripts_contents in all_scripts:
                 new_submission = Submission(
                     main_file=main_file, main_code=main_code,
-                    instructor_file=script, load_error=load_error
+                    instructor_file=script, load_error=load_error,
+                    execution=self.config.execution
                 )
                 self.submissions.append(Bundle(self.config, scripts_contents, new_submission))
             return load_error
@@ -333,7 +349,8 @@ class AbstractPipeline:
         new_submission = Submission(
             main_file="answer.py",
             main_code=self.config.submissions,
-            instructor_file=self.config.instructor
+            instructor_file=self.config.instructor,
+            execution=config.execution
         )
         self.submissions.append(Bundle(self.config, self.config.instructor, new_submission))
 
@@ -594,7 +611,7 @@ class GradePipeline(AbstractPipeline):
     def print_bundles(self, target):
         #print(len(self.submissions))
         for bundle in self.submissions:
-            print(bundle.result.output, file=target)
+            # print(bundle.result.output, file=target)
             if bundle.result.error:
                 raise bundle.result.error
             # This info is not sent to the output target, just to stdout
@@ -604,7 +621,7 @@ class GradePipeline(AbstractPipeline):
                   bundle.submission.assignment.get('name') if bundle.submission.assignment else 'Unknown Assignment',
                   1 if bundle.result.resolution.correct else
                   bundle.result.resolution.score,
-                  sep=", ", end="")
+                  sep=", ", end="\n")
 
 
 class SandboxPipeline(AbstractPipeline):
@@ -714,3 +731,4 @@ class MODES:
         VERIFY: VerifyPipeline,
         DEBUG: DebugPipeline
     }
+

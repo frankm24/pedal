@@ -57,6 +57,7 @@ class MockDrafter(MockModuleExposing):
         'abort', 'add_website_css', 'add_website_header',
         'deploy_site', 'get_server_setting',
         'set_website_framed', 'set_website_style', 'set_website_title',
+        'set_site_information'
     ]
 
 

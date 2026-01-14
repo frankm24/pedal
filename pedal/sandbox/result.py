@@ -230,10 +230,10 @@ class SandboxResult:
     def __mul__(self, other):
         left, right = _unwrap_value_pair(self, other)
         result = left.__mul__(right)
-        print("RMUL", left, right, result)
+        #print("RMUL", left, right, result)
         if result == NotImplemented:
             result = right.__rmul__(left)
-        print("RMUL2", left, right, result)
+        #print("RMUL2", left, right, result)
         return self._clone_this_result(result)
 
     def __matmul__(self, other):

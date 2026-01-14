@@ -1,12 +1,13 @@
 from pedal.types.new_types import ModuleType, FunctionType, void_function, ClassType, \
-    InstanceType, bool_function, int_function, str_function, register_builtin_module, AnyType, ListType
+    InstanceType, bool_function, int_function, str_function, register_builtin_module, AnyType, ListType, \
+    NoneType
 
 # TODO: route, Button, ...
 
 _VOID_FUNCTIONS = ['start_server', 'show_debug_information', 'hide_debug_information',
                    "deploy_site", "assert_equal", "set_website_framed",
                    "set_website_style", "set_website_title",
-                   "add_website_header", "add_website_css"]
+                   "add_website_header", "add_website_css", "set_site_information"]
 _COMPONENT_FUNCTIONS = ['Argument', 'Box', 'BulletedList', 'Button', 'CheckBox',
               'Div', 'Division', 'Download', 'FileUpload', 'Header',
               'HorizontalRule', 'Image', 'LineBreak', 'Link',
@@ -37,7 +38,8 @@ def build_drafter_module():
 
     _DRAFTER_FIELDS = {
         'Page': FunctionType('Page', returns=_PageObject_Constructor),
-        'get_server_setting': FunctionType('get_server_setting', returns=AnyType())
+        'get_server_setting': FunctionType('get_server_setting', returns=AnyType()),
+        'assert_equal': FunctionType(name='assert_equal', returns=NoneType),
     }
 
     _DRAFTER_FIELDS.update({

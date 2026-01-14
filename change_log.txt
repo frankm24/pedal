@@ -1,3 +1,12 @@
+Version 2.9.2 (1/14/2026)
+-------------------------
+* New `run_job` command to replicate command line execution from Python
+* Pool can now be specified with execution.submission_id
+* Small Drafter compatibility fixes
+* Fix FloorDiv types in TIFA
+* New `grade_function_question` function
+
+
 Version 2.9.1 (8/3/2025)
 ------------------------
 * Fixed bug with `verify` mode not handling a missing instructor name

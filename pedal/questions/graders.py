@@ -31,7 +31,11 @@ class FunctionGrader(QuestionGrader):
     UNIT_TEST_TYPE_RATIO = .5
     UNIT_TEST_COMPLETION_POINTS = 2
 
-    def __init__(self, function_name, signature, tests, config=None):
+    def __init__(self, function_name, signature, tests, config=None,
+                 max_points=None, definition_points=None, components_points=None,
+                    max_components_points=None, unit_test_type_points=None,
+                    unit_test_value_points=None, unit_test_total_points=None,
+                    unit_test_type_ratio=None, unit_test_completion_points=None):
         super().__init__()
         self.function_name = function_name
         self.signature = signature
@@ -39,7 +43,26 @@ class FunctionGrader(QuestionGrader):
         self.points = 0
         self.config = config or {}
         self.config.setdefault('suppress_function_unused', True)
+        self.config.setdefault('exact_strings', False)
         self.justification_parts = []
+        if max_points is not None:
+            self.MAX_POINTS = max_points
+        if definition_points is not None:
+            self.DEFINITION_POINTS = definition_points
+        if components_points is not None:
+            self.COMPONENTS_POINTS = components_points
+        if max_components_points is not None:
+            self.MAX_COMPONENTS_POINTS = max_components_points
+        if unit_test_type_points is not None:
+            self.UNIT_TEST_TYPE_POINTS = unit_test_type_points
+        if unit_test_value_points is not None:
+            self.UNIT_TEST_VALUE_POINTS = unit_test_value_points
+        if unit_test_total_points is not None:
+            self.UNIT_TEST_TOTAL_POINTS = unit_test_total_points
+        if unit_test_type_ratio is not None:
+            self.UNIT_TEST_TYPE_RATIO = unit_test_type_ratio
+        if unit_test_completion_points is not None:
+            self.UNIT_TEST_COMPLETION_POINTS = unit_test_completion_points
 
     def _test(self, question):
         defined = self.grade_definition(question)
@@ -86,18 +109,24 @@ class FunctionGrader(QuestionGrader):
         """
         self.student = run()
 
+        if self.config.get('suppress_function_unused', True):
+            suppress(FeedbackCategory.ALGORITHMIC, 'unused_variable', {'name': self.function_name})
+
         if ensure_function(self.function_name, *self.signature):
-            gently("Function not defined")
+            if not ensure_function(self.function_name, muted=True):
+                gently(f"The function {self.function_name} has an incorrect signature; check the function name, parameter names and types, and the return type.")
+            else:
+                gently(f"The function {self.function_name} was not defined.")
             return False
 
         if self.student.exception:
             return False
+
         if assertHasFunction(self.student, self.function_name):
             gently("Function defined incorrectly")
             return False
 
-        if self.config.get('suppress_function_unused', True):
-            suppress(FeedbackCategory.ALGORITHMIC, 'unused_variable', {'name': self.function_name})
+
 
         self.points += self.DEFINITION_POINTS
         self.justification_parts.append(f"Function {self.function_name} defined with signature: {self.DEFINITION_POINTS}")
@@ -127,7 +156,7 @@ class FunctionGrader(QuestionGrader):
         Returns:
 
         """
-        return assertEqual(*parameters)
+        return assertEqual(*parameters, exact_strings=self.config.get('exact_strings', False))
 
     def grade_unit_tests(self, question):
         """
@@ -177,3 +206,4 @@ class FunctionGrader(QuestionGrader):
             gently("Failing instructor unit tests")
             self.justification_parts.append(f"Some tests failed: {test_points}")
         return all_good
+
