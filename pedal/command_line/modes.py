@@ -88,6 +88,7 @@ class BundleResult:
 
 def extract_instructor_pool(config, script, submission, pool_mode='comment'):
     parts = re.split(r"#{4,} (.+) #{4,}", script, flags=re.M)
+    unnamed_parts = re.split(r"#{4,} .+ #{4,}", script, flags=re.M)
     if len(parts) <= 2:
         raise ValueError(
             "Pools not found in instructor control script. Please specify a pool in the instructor control script by writing `#### <pool_name> ####` at the top of the file. Note the hash signs and spaces are necessary, but you do not need the angle brackets."
@@ -122,11 +123,11 @@ def extract_instructor_pool(config, script, submission, pool_mode='comment'):
             raise ValueError(
                 "No pool id found in submission. Please ensure the submission has a submission_id for the execution."
             )
-        pool_index = 1 + (pool_id % (len(parts)-2))
-        body = parts[::2][pool_index]
+        pool_index = 1 + (pool_id % (len(unnamed_parts)-2))
+        body = unnamed_parts[pool_index]
     else:
         raise ValueError(f"Unknown pool mode: {pool_mode}")
-    print(header, body, footer)
+    # print(header, body, footer)
     return "\n".join([ header, body, footer ])
 
 class Bundle:

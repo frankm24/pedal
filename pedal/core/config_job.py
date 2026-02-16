@@ -55,7 +55,7 @@ MAIN_PARSER_DESCRIPTION = "Run instructor control script on student submission."
 class JobConfig:
     mode: MODES = field(
         metadata=metadata(
-            optional=True,
+            optional=False,
             help="What kind of Pedal analysis you're running. See the description of each mode above.",
             choices=list(MODES.PIPELINES)
         )

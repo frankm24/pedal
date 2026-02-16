@@ -35,9 +35,11 @@ def test_run_job():
     """
     Test the run_job function with StatsPipeline mode.
     """
+    on_run = "from pedal import *\nsuppress('algorithmic')\nensure_function('main', score='+60%')\n#### pool_1 ####\nensure_ast('For')\n#### pool_2 ####\nensure_ast('If')\n#### Footer ####\n"
+    student_code = "def main():\n    return 'Hello, World!'"
     submissions = run_job(
-        submissions = "def main():\n    return 'Hello, World!'",
-        instructor = "from pedal import *\nensure_function('main', score='+60%')\n#### pool_1 ####\nensure_ast('For')\n#### pool_2 ####\nensure_ast('If')\n#### Footer ####\n",
+        submissions = student_code,
+        instructor = on_run,
         instructor_direct = True,
         submission_direct = True,
         points= ".5",
@@ -48,9 +50,30 @@ def test_run_job():
     assert submissions is not None, "run_job should return a result"
     assert submissions[0].result.error is None
     assert submissions[0].result.resolution.score == .5, "Expected score to be 1.5"
-    assert submissions[0].result.resolution.label == 'unused_variable'
-    assert submissions[0].result.resolution.category == 'algorithmic'
+    assert submissions[0].result.resolution.label == 'ensure_ast'
+    assert submissions[0].result.resolution.category == 'specification'
+    assert submissions[0].result.resolution.data['name'] == 'For'
     if not "MAIN_REPORT" in submissions[0].result.data:
         raise submissions[0].result.error
     main_report = submissions[0].result.data['MAIN_REPORT']
-    print(main_report.feedback)
+    print(main_report)
+
+    submissions = run_job(
+        submissions=student_code,
+        instructor=on_run,
+        instructor_direct=True,
+        submission_direct=True,
+        points=".5",
+        pool="submission_id",
+        execution={"submission_id": 47},
+    )
+
+    assert submissions is not None, "run_job should return a result"
+    assert submissions[0].result.error is None
+    assert submissions[0].result.resolution.score == .5, "Expected score to be 1.5"
+    assert submissions[0].result.resolution.label == 'ensure_ast'
+    assert submissions[0].result.resolution.data['name'] == 'If'
+    assert submissions[0].result.resolution.category == 'specification'
+    if not "MAIN_REPORT" in submissions[0].result.data:
+        raise submissions[0].result.error
+    main_report = submissions[0].result.data['MAIN_REPORT']
