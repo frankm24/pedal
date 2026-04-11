@@ -1,3 +1,11 @@
+Version 2.9.4 (4/11/2026)
+-------------------------
+*
+
+Version 2.9.3 (2/16/2026)
+-------------------------
+* Bug fix for pool logic in `run_job` command.
+
 Version 2.9.2 (1/14/2026)
 -------------------------
 * New `run_job` command to replicate command line execution from Python
