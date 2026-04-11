@@ -523,7 +523,9 @@ class TifaCore:
         Returns:
 
         """
-        state = State(left.name, [left], left.type, 'branch', self.locate(),
+        state = State(left.name, [left], left.type, 'branch',
+                      left.position,
+                      # self.locate(),
                       read=left.read, set=left.set, over=left.over,
                       over_position=left.over_position)
         if right is None:
@@ -536,6 +538,7 @@ class TifaCore:
             state.read = self.match_rso(left.read, right.read)
             state.set = self.match_rso(left.set, right.set)
             state.over = self.match_rso(left.over, right.over)
+            state.position = right.position
             if left.over == 'no':
                 state.over_position = right.over_position
             state.trace.append(right)

@@ -107,13 +107,15 @@ class State:
 from collections import defaultdict
 import hashlib
 
+
+def state_id(path_id, name, index):
+    return f"{name}_{path_id}_{index}"
+
+
+def hash_style(text):
+    return hashlib.md5(text.encode()).hexdigest()[:6]
+
 def print_history_diagram(history):
-    def state_id(path_id, name, index):
-        return f"{name}_{path_id}_{index}"
-
-    def hash_style(text):
-        return hashlib.md5(text.encode()).hexdigest()[:6]
-
     grouped = defaultdict(list)
     for path_id, fqname, state in history:
         grouped[state.name].append((path_id, fqname, state))

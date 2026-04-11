@@ -1,6 +1,6 @@
 Version 2.9.4 (4/11/2026)
 -------------------------
-*
+* Fix TIFA bug where line numbers get misreported coming out of branches
 
 Version 2.9.3 (2/16/2026)
 -------------------------

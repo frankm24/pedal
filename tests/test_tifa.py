@@ -1518,5 +1518,26 @@ print(foo(-5))
         self.assertIsNone(result.error)
         self.assertFalse(result.issues)
 
+    def test_early_branch_possibly_undefined(self):
+        main_program = dedent("""
+        def foo() -> int:
+            if True:
+                possibly_assigned = True
+        foo()
+        """)
+        tifa = pedal.tifa.Tifa()
+        tifa.TRACK_HISTORY = True
+        result = tifa.process_code(main_program, filename="student.py")
+        pprint(tifa.history)
+        if result.error:
+            raise result.error
+        self.assertIsNone(result.error)
+        self.assertTrue(result.issues)
+        print(result.issues)
+        self.assertEqual("possibly_assigned",
+                         result.issues['unused_variable'][0].fields['name'])
+        self.assertEqual(4,
+                         result.issues['unused_variable'][0].location.line)
+
 if __name__ == '__main__':
     unittest.main(buffer=False)
