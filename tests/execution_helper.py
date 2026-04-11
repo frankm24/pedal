@@ -38,24 +38,28 @@ class Execution:
 
     """
     def __init__(self, code, tracer_style='none', old_style_messages=False,
-                 run_tifa=True, report=MAIN_REPORT):
+                 run_tifa=True, report=MAIN_REPORT, run_verify=True, run_student=True):
         self.code = code
         self.tracer_style = tracer_style
         self.old_style_messages = old_style_messages
         self.report=report
         self.final = None
         self.run_tifa = run_tifa
+        self.run_verify = run_verify
+        self.run_student = run_student
 
     def __enter__(self):
         clear_report(report=self.report)
         contextualize_report(self.code, report=self.report)
-        verify(report=self.report)
+        if self.run_verify:
+            verify(report=self.report)
         if self.run_tifa:
             tifa_analysis(report=self.report)
         # TODO: Clean this up
         self.student = get_sandbox(self.report)
         self.report['sandbox']['sandbox'].tracer_style = self.tracer_style
-        commands.run()
+        if self.run_student:
+            commands.run()
         return self
 
     def __exit__(self, *args):

@@ -9,7 +9,6 @@ from pedal.assertions.commands import *
 from pedal.assertions.positive import close_output, correct_output
 
 
-
 def reset(report=MAIN_REPORT):
     """
     Resets (or initializes) the information about assertions.

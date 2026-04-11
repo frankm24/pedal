@@ -7,6 +7,7 @@ from pedal.sandbox.commands import call, clear_student_data, run, get_sandbox, C
 from pedal.assertions.static import *
 from pedal.assertions.runtime import *
 from pedal.assertions.runtime import _FIELDS
+from pedal.assertions.syntactic import *
 from pedal.assertions.positive import close_output, correct_output
 from pedal.types.new_types import is_subtype
 from pedal.assertions.testing_libraries import *

@@ -1,6 +1,8 @@
-Version 2.9.4 (4/11/2026)
+Version 3.0.0 (4/11/2026)
 -------------------------
 * Fix TIFA bug where line numbers get misreported coming out of branches
+* New `require_`/`reject_` functions for syntactic feedback
+* New `signature` field for feedback objects, which can be used to distinguish between different feedback objects of the same type. Now every single feedback function is responsible for computing an appropriate signature; if two FFs have the same signature+label+category, the implication is that their conditions would be the same (although they could still have different response messages).
 
 Version 2.9.3 (2/16/2026)
 -------------------------
