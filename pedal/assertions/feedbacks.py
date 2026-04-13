@@ -41,7 +41,7 @@ from pedal.core.feedback import Feedback, FeedbackGroup
 from pedal.core.feedback_category import FeedbackStatus
 from pedal.core.report import MAIN_REPORT
 from pedal.sandbox import Sandbox
-from pedal.sandbox.data import format_contexts
+from pedal.sandbox.data import format_contexts, specifier_from_context
 from pedal.sandbox.exceptions import SandboxException
 from pedal.sandbox.result import is_sandbox_result, unwrap_value
 from pedal.assertions.constants import TOOL_NAME
@@ -140,6 +140,7 @@ class RuntimeAssertionFeedback(AssertionFeedback):
             context_message = kwargs['context']
         else:
             context_message = format_contexts(contexts, self.report.format)
+        self.specifier = specifier_from_context(contexts)
         # Calculate the assertion_message
         if kwargs.get('assertion') is False:
             assertion_message = ""

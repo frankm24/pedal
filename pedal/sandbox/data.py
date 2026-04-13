@@ -178,6 +178,17 @@ class ExecutionTextHolder:
 INPUT_MAXIMUM_LINES = 30
 
 
+def specifier_from_context(contexts):
+    result = []
+    for context_group in contexts:
+        for context in context_group:
+            if context.code:
+                result.append(context.code)
+            if context.inputs:
+                result.append("~".join(context.inputs))
+    return "~".join(result)
+
+
 def format_contexts(contexts, format):
     """
     Create a text string representation from a list of contexts.

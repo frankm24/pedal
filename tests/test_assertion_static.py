@@ -8,7 +8,9 @@ from tests.execution_helper import Execution, ExecutionTestCase, SUCCESS_MESSAGE
 class TestAssertions(ExecutionTestCase):
     def test_prevent_function_usage(self):
         with Execution('sum([1,2,3])') as e:
-            self.assertTrue(prevent_function_call('sum'))
+            f = prevent_function_call('sum')
+            self.assertTrue(f)
+        self.assertEqual(f.specifier, 'sum')
         self.assertFeedback(e, "May Not Use Function\n"
                                "You used the function sum on line 1. "
                                "You may not use that function.")

@@ -37,6 +37,13 @@ class Feedback:
             sort of feedback this falls into (e.g., "runtime", "syntax", "algorithm").
             More than one feedback will be in a category, but a feedback cannot be in
             more than one category.
+        specifier (str): A label that will uniquely identify the conditions of this FF
+            within a given category and label. The exact nature of this specifier will vary
+            depending on the type of systems involved; for unit tests, it'll probably be the
+            function name and a `repr` of its arguments. For liveness checks, it might be a
+            variable name with a scope modifier. However, the implication is that if two
+            FFs have the same label, category, and specifier, then they should be treated
+            as conceptually equivalent (even across students, though less so across problems).
         kind (str): The pedagogical role of this feedback, e.g., "misconception", "mistake",
             "hint", "constraint". Usually, a piece of Feedback is pointing out a mistake,
             but feedback can also be used for various other purposes.
@@ -125,6 +132,7 @@ class Feedback:
 
     label = None
     category = None
+    specifier = None
     justification = None
     justification_template = None
     constant_fields = None
@@ -178,6 +186,7 @@ class Feedback:
                  tool=None, version=None, author=None,
                  tags=None, parent=None, report=MAIN_REPORT,
                  delay_condition=False, activate=True,
+                 specifier=None,
                  **kwargs):
         # Internal data
         self.report = report
@@ -191,6 +200,8 @@ class Feedback:
             self.category = category
         if justification is not None:
             self.justification = justification
+        if specifier is not None:
+            self.specifier = specifier
         self.activate = activate
         # Response
         if kind is not None:
@@ -427,7 +438,7 @@ class Feedback:
         Returns:
             str: String representation
         """
-        return "<Feedback ({},{})>".format(self.category, self.label)
+        return "<Feedback ({},{}, {})>".format(self.category, self.label, self.specifier)
 
     def __repr__(self):
         """
@@ -440,6 +451,8 @@ class Feedback:
             metadata += ", tool=" + self.tool
         if self.category is not None:
             metadata += ", category=" + self.category
+        if self.specifier is not None:
+            metadata += ", specifier=" + self.specifier
         if self.priority is not None:
             metadata += ", priority=" + self.priority
         if self.parent is not None:
@@ -479,6 +492,7 @@ class Feedback:
             'muted': self.muted,
             'unscored': self.unscored,
             'category': self.category,
+            'specifier': self.specifier,
             'kind': self.kind,
             'valence': self.valence,
             'version': self.version,

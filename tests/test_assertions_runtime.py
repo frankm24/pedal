@@ -151,7 +151,8 @@ But I expected the result to be identical to:
 
     def test_assert_length_equal_basic_fails(self):
         with Execution('5') as e:
-            assert_length_equal([1, 2, 3], 4)
+            f = assert_length_equal([1, 2, 3], 4)
+        self.assertEqual(f.specifier, "")
         self.assertFeedback(e, """Failed Instructor Test
 Student code failed instructor test.
     [1, 2, 3] did not have the length 4""")
@@ -268,9 +269,12 @@ But I expected alpha to be equal to:
     def test_assert_group_fails_some_errors(self):
         with Execution('def add(a, b): return a+b', run_tifa=False) as e:
             with assert_group('add') as g:
-                assert_equal(e.student.call('add', 1, 2), 3)
-                assert_equal(e.student.call('add', 1, 4), 6)
-                assert_equal(e.student.call('add', 1, "2"), 3)
+                f = assert_equal(e.student.call('add', 1, 2), 3)
+                f2 = assert_equal(e.student.call('add', 1, 4), 6)
+                f3 = assert_equal(e.student.call('add', 1, "2"), 3)
+        self.assertEqual(f.specifier, "add(1, 2)")
+        self.assertEqual(f2.specifier, "add(1, 4)")
+        self.assertEqual(f3.specifier, "add(1, '2')")
         self.assertFeedback(e, """Failed Instructor Test
 Student code failed instructor tests.
 You passed 1/3 tests.
@@ -540,7 +544,8 @@ def adder():
     return input() + input()
 adder
 ''') as e:
-            assert_equal(call('adder', inputs=['A', '', 'B']), 'AB')
+            f = assert_equal(call('adder', inputs=['A', '', 'B']), 'AB')
+        self.assertEqual(f.specifier, "adder()~A~")
         self.assertFeedback(e, """Failed Instructor Test
 Student code failed instructor test.
 I ran the code:

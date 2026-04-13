@@ -34,7 +34,7 @@ class FinalFeedback:
     def __init__(self, correct=None, score=None, category=None, label=None, title=None,
                  message=None, data=None, hide_correctness=None,
                  suppressions=None, suppressed_labels=None, success=None,
-                 scores=None, scores_feedback=None, **kwargs):
+                 scores=None, scores_feedback=None, specifier=None, **kwargs):
         """
 
         Args:
@@ -57,6 +57,7 @@ class FinalFeedback:
         self._scores_feedback = [] if scores_feedback is None else scores_feedback
         self.category = category
         self.label = label
+        self.specifier = specifier
         self.title = title
         self.message = message
         self.data = data
@@ -152,6 +153,7 @@ class FinalFeedback:
             self.title = title
             self.category = feedback.category
             self.label = feedback.label
+            self.specifier = feedback.specifier
             self.data = data
             self.used.append(feedback)
         # All done, return the feedback out of politeness

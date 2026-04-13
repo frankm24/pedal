@@ -37,6 +37,7 @@ class EnsureAssertionFeedback(AssertionFeedback):
         fields = {'name': name, 'at_least': at_least, 'capacity': '',
                   'root': root, 'name_message': report.format.name(name),
                   'root_message': root_message}
+        self.specifier = name
         super().__init__(fields=fields, **kwargs)
 
     def _check_usage(self, field_name, uses):
@@ -63,6 +64,7 @@ class PreventAssertionFeedback(AssertionFeedback):
         fields = {'name': name, 'at_most': at_most, 'capacity': '',
                   'root': root, 'name_message': report.format.name(name),
                   'root_message': root_message}
+        self.specifier = name
         super().__init__(fields=fields, **kwargs)
 
     def _check_usage(self, field_name, uses):
