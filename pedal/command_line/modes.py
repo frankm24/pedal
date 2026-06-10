@@ -20,6 +20,7 @@ from pedal.command_line.report import StatReport
 from pedal.command_line.verify import generate_report_out, ReportVerifier
 from pedal.core.report import MAIN_REPORT
 from pedal.core.submission import Submission
+from pedal.command_line.instructor_mock import make_instructor_data
 from pedal.utilities.files import normalize_path, find_possible_filenames
 from pedal.utilities.progsnap import SqlProgSnap2
 from pedal.utilities.text import chomp
@@ -161,7 +162,7 @@ class Bundle:
         """
         ics_args = [self.submission, self.environment]
         captured_output = StringIO()
-        global_data = {}
+        global_data = make_instructor_data(self.config.extra_instructor_files)
         error = None
         resolution = None
         if self.environment:
@@ -347,11 +348,15 @@ class AbstractPipeline:
             raise ValueError("TODO: Zip files not yet supported")
 
     def load_file_directly(self, config):
+        extra_parameters = {}
+        if config.extra_files is not None:
+            extra_parameters['files'] = config.extra_files
         new_submission = Submission(
             main_file="answer.py",
             main_code=self.config.submissions,
             instructor_file=self.config.instructor,
-            execution=config.execution
+            execution=config.execution,
+            **extra_parameters
         )
         self.submissions.append(Bundle(self.config, self.config.instructor, new_submission))
 

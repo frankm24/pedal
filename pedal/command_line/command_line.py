@@ -51,8 +51,7 @@ Config settings
 """
 
 import argparse
-from dataclasses import asdict
-from pedal.core.config_job import JobConfig, make_job_config_parser
+from pedal.core.config_job import make_job_config_parser
 from pedal.command_line.modes import MODES
 from pedal.environments import ALL_ENVIRONMENTS
 

@@ -161,6 +161,18 @@ class JobConfig:
             action="store_true"
         )
     )
+    extra_files: dict[str, str] = field(
+        default=None,
+        metadata=metadata(
+            help="Provide additional files that will be put into the student namespace.",
+        )
+    )
+    extra_instructor_files: dict[str, str] = field(
+        default=None,
+        metadata=metadata(
+            help="Provide additional files that will be made available in the instructor namespace."
+        )
+    )
     skip_tifa: bool = field(
         default=False,
         metadata=metadata(

@@ -1,3 +1,7 @@
+Version 3.0.1 (6/10/2026)
+-------------------------
+* New parameters for instructor and submission files specification in JobConfig
+
 Version 3.0.0 (4/11/2026)
 -------------------------
 * Fix TIFA bug where line numbers get misreported coming out of branches

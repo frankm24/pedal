@@ -77,3 +77,69 @@ def test_run_job():
     if not "MAIN_REPORT" in submissions[0].result.data:
         raise submissions[0].result.error
     main_report = submissions[0].result.data['MAIN_REPORT']
+
+def test_run_job_extra_files():
+    """
+    Test the run_job function with StatsPipeline mode where you provide extra files.
+    """
+    on_run = "from pedal import *\nassert_equal(call('main'), 'Hello, World!')"
+    student_code = "from banana import secret_value\ndef main():\n    return secret_value\nmain()"
+    extra_files = {
+        "banana.py": "secret_value = 'Hello, World!'\nsecret_value"
+    }
+    pipeline = StatsPipeline(JobConfig(
+        mode=MODES.STATS,
+        submissions=student_code,
+        instructor=on_run,
+        instructor_direct=True,
+        submission_direct=True,
+        points=".5",
+        output=None,
+        extra_files=extra_files
+    ))
+    assert pipeline is not None, "StatsPipeline should be initialized"
+
+    # Run the pipeline and check if it completes without errors
+    try:
+        result = pipeline.execute()
+    except Exception as e:
+        assert False, f"StatsPipeline run failed with exception: {e}"
+
+    # Check if the report is generated
+    assert pipeline.submissions[0].result.error is None
+    assert pipeline.submissions[0].result.resolution.correct, "Expected the submission to be correct"
+
+def test_run_job_extra_files_everywhere():
+    """
+    Test the run_job function with StatsPipeline mode where you provide extra files.
+    """
+    on_run = "from _instructor.plum import secret_value\nfrom pedal import *\nassert_equal(call('main'), secret_value)"
+    student_code = "import banana\ndef main():\n    return banana.secret_value\nmain()"
+    extra_files = {
+        "banana.py": "secret_value = 'Hello, World!'"
+    }
+    extra_instructor_files = {
+        "_instructor/plum.py": "secret_value = 'Hello, World!'"
+    }
+    pipeline = StatsPipeline(JobConfig(
+        mode=MODES.STATS,
+        submissions=student_code,
+        instructor=on_run,
+        instructor_direct=True,
+        submission_direct=True,
+        points=".5",
+        output=None,
+        extra_files=extra_files,
+        extra_instructor_files=extra_instructor_files
+    ))
+    assert pipeline is not None, "StatsPipeline should be initialized"
+
+    # Run the pipeline and check if it completes without errors
+    try:
+        result = pipeline.execute()
+    except Exception as e:
+        assert False, f"StatsPipeline run failed with exception: {e}"
+
+    # Check if the report is generated
+    assert pipeline.submissions[0].result.error is None
+    assert pipeline.submissions[0].result.resolution.correct, "Expected the submission to be correct"
