@@ -101,7 +101,7 @@ def timeout(duration, func, *args, **kwargs):
             e.__traceback__ = ei[2]
             e.exc_info = target_thread.exc_info
             raise e
-
+        return target_thread.result
 
 # =========================================================================
 
