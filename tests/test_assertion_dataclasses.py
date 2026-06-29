@@ -27,12 +27,14 @@ class Dog:
 
 x = Dog("Ada", 4)
 print(x)""") as e:
+
             @dataclass
             class Dog:
                 name: str
                 age: int
-            self.assertFalse(check_dataclass_instance(evaluate('x'), Dog))
-            #self.assertFalse(assert_dataclass_fields())
+
+            self.assertFalse(check_dataclass_instance(evaluate("x"), Dog))
+            # self.assertFalse(assert_dataclass_fields())
         self.assertFeedback(e, SUCCESS_MESSAGE)
 
     def test_dataclasses_fails_runtime(self):
@@ -48,14 +50,19 @@ x = Dog("Ada", 4)
 print(x)
 x.age = "Apple"
 print(x)""") as e:
+
             @dataclass
             class Dog:
                 name: str
                 age: int
-            self.assertTrue(check_dataclass_instance(evaluate('x'), Dog))
-            #self.assertFalse(assert_dataclass_fields())
-        self.assertFeedback(e, """Wrong Fields Type
-The dataclass named Dog has a field named age that is a string, but should be an integer.""")
+
+            self.assertTrue(check_dataclass_instance(evaluate("x"), Dog))
+            # self.assertFalse(assert_dataclass_fields())
+        self.assertFeedback(
+            e,
+            """Wrong Fields Type
+The dataclass named Dog has a field named age that is a string, but should be an integer.""",
+        )
 
     def test_dataclasses_fails_runtime_close(self):
         with Execution("""
@@ -68,15 +75,19 @@ class Dog:
 
 x = Dog("Ada", 4)
 print(x)""") as e:
+
             @dataclass
             class Dog:
                 name: str
                 age: int
 
-            self.assertTrue(check_dataclass_instance(evaluate('x'), Dog))
+            self.assertTrue(check_dataclass_instance(evaluate("x"), Dog))
             # self.assertFalse(assert_dataclass_fields())
-        self.assertFeedback(e, """Unknown Field
-The dataclass named Dog had a field named ag but that field is not supposed to be there. Are you sure you got the name right?""")
+        self.assertFeedback(
+            e,
+            """Unknown Field
+The dataclass named Dog had a field named ag but that field is not supposed to be there. Are you sure you got the name right?""",
+        )
 
     def test_dataclasses_fails_runtime_error(self):
         with Execution("""
@@ -89,17 +100,23 @@ class Dog:
 
 x = Dog("Ada")
 print(x)""") as e:
+
             @dataclass
             class Dog:
                 name: str
                 age: int
 
-            self.assertTrue(check_dataclass_instance(evaluate('x'), Dog))
+            self.assertTrue(check_dataclass_instance(evaluate("x"), Dog))
             # self.assertFalse(assert_dataclass_fields())
-        self.assertFeedback(e, """Incorrect Arity
-The constructor function Dog was given the wrong number of arguments. You should have had 2 arguments, but instead you had 1 arguments.""")
+        self.assertFeedback(
+            e,
+            """Incorrect Arity
+The constructor function Dog was given the wrong number of arguments. You should have had 2 arguments, but instead you had 1 arguments.""",
+        )
 
-    @unittest.skipIf(not IS_AT_LEAST_PYTHON_39, "Cannot subscript literals in Python 3.7")
+    @unittest.skipIf(
+        not IS_AT_LEAST_PYTHON_39, "Cannot subscript literals in Python 3.7"
+    )
     def test_weird_forecast_issue(self):
         @dataclass
         class WeatherOptions:
@@ -180,12 +197,47 @@ assert_equal(total_rainfall(List1), 30)
 assert_equal(total_rainfall(List2), 65)""")
         with Execution(main_program):
             for name, dc in zip(NAMES, CLASSES):
-                self.assertFalse(ensure_dataclass(dc, priority='instructor'))
+                self.assertFalse(ensure_dataclass(dc, priority="instructor"))
                 self.assertFalse(assert_is_instance(evaluate(name), type))
                 #
             # self.assertFalse(assert_dataclass_fields())
-        #self.assertFeedback(e, """Incorrect Arity
-        #The constructor function Dog was given the wrong number of arguments. You should have had 2 arguments, but instead you had 1 arguments.""")
+        # self.assertFeedback(e, """Incorrect Arity
+        # The constructor function Dog was given the wrong number of arguments. You should have had 2 arguments, but instead you had 1 arguments.""")
 
-if __name__ == '__main__':
+    def test_dataclasses_equal_across_namespaces(self):
+        with Execution(
+            """
+from dataclasses import dataclass
+
+@dataclass
+class Foo:
+    x: int
+    y: float
+
+@dataclass
+class Bar:
+    a: Foo
+    b: str
+x = Bar(Foo(1, 2), "hello")
+""",
+            run_tifa=False,
+        ) as e:
+            from dataclasses import dataclass
+
+            @dataclass
+            class Foo:
+                x: int
+                y: float
+
+            @dataclass
+            class Bar:
+                a: Foo
+                b: str
+
+            y = Bar(Foo(1, 2), "hello")
+            self.assertFalse(assert_equal(evaluate("x"), y))
+        self.assertFeedback(e, SUCCESS_MESSAGE)
+
+
+if __name__ == "__main__":
     unittest.main(buffer=False)

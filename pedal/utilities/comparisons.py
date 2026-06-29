@@ -187,7 +187,8 @@ def equality_test(actual, expected, _exact_strings, _delta):
             ):
                 return False
         return True
-    # Same dataclasses, different module
+    # Allow for equality of instances of two distinct dataclasses across
+    # namespaces if their names and fields are equal
     elif is_dataclass(expected) and is_dataclass(actual):
         expected_fields = fields(expected)
         actual_fields = fields(actual)
