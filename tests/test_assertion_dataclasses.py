@@ -221,5 +221,32 @@ x = Bar(Foo(1, 2), "hello")
             self.assertFalse(assert_equal(evaluate("x"), y))
         self.assertFeedback(e, SUCCESS_MESSAGE)
 
+    def test_dataclasses_equal_across_namespaces_pure(self):
+        from pedal.utilities.comparisons import equality_test
+        from dataclasses import dataclass
+
+        def make_state_class():     
+            @dataclass
+            class State:
+                score: int
+                name: str
+            return State
+
+        S1, S2 = make_state_class(), make_state_class()
+        assert S1 is not S2 and S1.__name__ == S2.__name__  
+
+        # `equality_test` returns True if the condition is True.
+        # `assert_equal` is a Feedback object so the boolean cast is
+        # the opposite 
+
+        assert bool(assert_equal(S1(5, "Ada"), S2(5, "Ada"))) is False
+
+        assert bool(assert_equal(S1(5, "Ada"), S2(6, "Bob"))) is True
+
+        @dataclass
+        class Other:
+            score: int
+        assert equality_test(S1(5, "Ada"), Other(5), False, 0.001) is False
+
 if __name__ == '__main__':
     unittest.main(buffer=False)
