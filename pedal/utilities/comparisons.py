@@ -173,8 +173,8 @@ def equality_test(actual, expected, _exact_strings, _delta):
             == [field.name for field in actual_fields]
             and all(
                 equality_test(
-                    getattr(expected, field),
-                    getattr(actual, field),
+                    getattr(expected, field.name),
+                    getattr(actual, field.name),
                     _exact_strings,
                     _delta,
                 )
