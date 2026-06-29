@@ -23,14 +23,11 @@ except:
     frozenset = tuple()
 
 try:
-    punctuation_table = str.maketrans(
-        string.punctuation, " " * len(string.punctuation)
-    )
+    punctuation_table = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
 except AttributeError:
     punctuation_table = None
 
 if punctuation_table is None:
-
     def strip_punctuation(a_string):
         """
 
@@ -40,12 +37,8 @@ if punctuation_table is None:
         Returns:
 
         """
-        return "".join(
-            ch for ch in a_string if ch not in set(string.punctuation)
-        )
-
+        return ''.join(ch for ch in a_string if ch not in set(string.punctuation))
 else:
-
     def strip_punctuation(a_string):
         """
 
@@ -57,17 +50,11 @@ else:
         """
         return a_string.translate(punctuation_table)
 
-
 SET_GENERATOR_TYPES = (type({}.keys()), type({}.values()), type({}.items()))
 
-LIST_GENERATOR_TYPES = (
-    type(map(bool, [])),
-    type(filter(bool, [])),
-    type(range(0)),
-    type(reversed([])),
-    type(zip()),
-    type(enumerate([])),
-)
+LIST_GENERATOR_TYPES = (type(map(bool, [])), type(filter(bool, [])),
+                        type(range(0)), type(reversed([])), type(zip()),
+                        type(enumerate([])))
 
 
 def _split_into_lolos(a_string):
@@ -92,10 +79,10 @@ def _normalize_string(a_string, numeric_endings=False):
     a_string = strip_punctuation(a_string)
     # Split lines
     lines = a_string.split("\n")
-    normalized = [[piece for piece in line.split()] for line in lines]
-    normalized = [
-        [piece for piece in line if piece] for line in normalized if line
-    ]
+    normalized = [[piece for piece in line.split()]
+                  for line in lines]
+    normalized = [[piece for piece in line if piece]
+                  for line in normalized if line]
     return sorted(normalized)
 
 
@@ -116,10 +103,7 @@ def output_test(actual, expected, _exact_strings):
         return normalizer(expected) in normalized_actual
     else:
         normalized_expected = [normalizer(line) for line in expected]
-        return all(
-            each_actual in normalized_expected
-            for each_actual in normalized_actual
-        )
+        return all(each_actual in normalized_expected for each_actual in normalized_actual)
 
 
 def equality_test(actual, expected, _exact_strings, _delta):
@@ -149,16 +133,11 @@ def equality_test(actual, expected, _exact_strings, _delta):
         error = _delta
         return abs(expected - actual) < error
     # Other numerics
-    elif (
-        isinstance(expected, Number)
-        and isinstance(actual, Number)
-        and isinstance(expected, type(actual))
-    ):
+    elif isinstance(expected, Number) and isinstance(actual, Number) and isinstance(expected, type(actual)):
         return expected == actual
     # String comparisons
-    elif (isinstance(expected, str) and isinstance(actual, str)) or (
-        isinstance(expected, bytes) and isinstance(actual, bytes)
-    ):
+    elif ((isinstance(expected, str) and isinstance(actual, str)) or
+          (isinstance(expected, bytes) and isinstance(actual, bytes))):
         if _exact_strings:
             return expected == actual
         else:
@@ -177,14 +156,10 @@ def equality_test(actual, expected, _exact_strings, _delta):
         return _are_sets_equal(actual, expected, _exact_strings, _delta)
     elif isinstance(expected, dict) and isinstance(actual, dict):
         primary_keys = set(expected.keys())
-        if not _are_sets_equal(
-            primary_keys, set(actual.keys()), _exact_strings, _delta
-        ):
+        if not _are_sets_equal(primary_keys, set(actual.keys()), _exact_strings, _delta):
             return False
         for key in primary_keys:
-            if not equality_test(
-                expected[key], actual[key], _exact_strings, _delta
-            ):
+            if not equality_test(expected[key], actual[key], _exact_strings, _delta):
                 return False
         return True
     # Allow for equality of instances of two distinct dataclasses across
@@ -206,7 +181,6 @@ def equality_test(actual, expected, _exact_strings, _delta):
                 for field in expected_fields
             )
         )
-
     # Else
     return False
 
@@ -252,4 +226,4 @@ def iterable(obj) -> bool:
     Determines if this object satisfies the iterable interface, which
     requires it to support either ``__iter__`` or ``__getitem__``.
     """
-    return hasattr(obj, "__iter__") or hasattr(obj, "__getitem__")
+    return hasattr(obj, '__iter__') or hasattr(obj, '__getitem__')
