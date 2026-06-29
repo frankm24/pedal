@@ -78,7 +78,13 @@ class assert_equal(RuntimeAssertionFeedback):
 
     def condition(self, left, right, exact_strings, delta):
         """ Tests if the left and right are equal """
-        return errors(left, right) or not equality_test(left.value, right.value, exact_strings, delta)
+        left_value = (
+            left.value._actual_value if left.is_sandboxed else left.value
+        )
+        right_value = (
+            right.value._actual_value if right.is_sandboxed else right.value
+        )
+        return errors(left, right) or not equality_test(left_value, right_value, exact_strings, delta)
 
 
 class assert_not_equal(RuntimeAssertionFeedback):
@@ -105,7 +111,13 @@ class assert_not_equal(RuntimeAssertionFeedback):
 
     def condition(self, left, right, exact_strings, delta):
         """ Tests if the left and right are not equal """
-        return equality_test(left.value, right.value, exact_strings, delta)
+        left_value = (
+            left.value._actual_value if left.is_sandboxed else left.value
+        )
+        right_value = (
+            right.value._actual_value if right.is_sandboxed else right.value
+        )
+        return equality_test(left_value, right_value, exact_strings, delta)
 
 
 class assert_less(RuntimeAssertionFeedback):

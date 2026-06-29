@@ -162,11 +162,25 @@ def equality_test(actual, expected, _exact_strings, _delta):
             if not equality_test(expected[key], actual[key], _exact_strings, _delta):
                 return False
         return True
-    # Two dataclasses
+    # Allow for equality of instances of two distinct dataclasses across
+    # namespaces if their names and fields are equal
     elif is_dataclass(expected) and is_dataclass(actual):
-        return (expected.__name__ == actual.__name__ and
-                all(e.name == a.name and equality_test(e.type, a.type, _exact_strings, _delta)
-                    for e, a in zip(fields(expected), fields(actual))))
+        expected_fields = fields(expected)
+        actual_fields = fields(actual)
+        return (
+            type(expected).__name__ == type(actual).__name__
+            and [field.name for field in expected_fields]
+            == [field.name for field in actual_fields]
+            and all(
+                equality_test(
+                    getattr(expected, field),
+                    getattr(actual, field),
+                    _exact_strings,
+                    _delta,
+                )
+                for field in expected_fields
+            )
+        )
     # Else
     return False
 

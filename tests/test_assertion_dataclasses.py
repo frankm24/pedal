@@ -187,5 +187,39 @@ assert_equal(total_rainfall(List2), 65)""")
         #self.assertFeedback(e, """Incorrect Arity
         #The constructor function Dog was given the wrong number of arguments. You should have had 2 arguments, but instead you had 1 arguments.""")
 
+    def test_dataclasses_equal_across_namespaces(self):
+        with Execution(
+            """
+from dataclasses import dataclass
+
+@dataclass
+class Foo:
+    x: int
+    y: float
+
+@dataclass
+class Bar:
+    a: Foo
+    b: str
+x = Bar(Foo(1, 2), "hello")
+""",
+            run_tifa=False,
+        ) as e:
+            from dataclasses import dataclass
+
+            @dataclass
+            class Foo:
+                x: int
+                y: float
+
+            @dataclass
+            class Bar:
+                a: Foo
+                b: str
+
+            y = Bar(Foo(1, 2), "hello")
+            self.assertFalse(assert_equal(evaluate("x"), y))
+        self.assertFeedback(e, SUCCESS_MESSAGE)
+
 if __name__ == '__main__':
     unittest.main(buffer=False)
